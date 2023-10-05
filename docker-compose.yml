@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+    # nginx
+    nginx:
+        image: nginx:latest
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+        depends_on:
+            - php-fpm
+        networks:
+            - test-network
+
+    php-fpm:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - ./:/var/www/html
+        depends_on:
+            - postgresql
+        networks:
+            - test-network
+
+    postgresql:
+        image: postgres:latest
+        environment:
+            POSTGRES_DB: db
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: password
+        volumes:
+            - ./data:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+        networks:
+            - test-network
+
+networks:
+    test-network:
